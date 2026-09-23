@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hanuman-chalisa-app-jerq.netlify.app/sitemap.xml
