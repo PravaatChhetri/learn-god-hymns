@@ -133,6 +133,7 @@
         <button class="tab" data-text="ramstuti" role="tab" aria-selected="true">Ram Stuti</button>
         <button class="tab" data-text="chalisa" role="tab" aria-selected="false">Chalisa</button>
         <button class="tab" data-text="bajrangbaan" role="tab" aria-selected="false">Bajrang Baan</button>
+        <button class="tab" data-text="mala" role="tab" aria-selected="false">Mala</button>
       </div>
       <button class="icon-btn" id="aboutBtn" title="About this site" aria-label="About this site">ℹ</button>
       <button class="icon-btn" id="countBtn" title="Reading count" aria-label="Reading count">
@@ -149,6 +150,35 @@
         <button class="nav-arrow right" id="nextBtn" aria-label="Next stanza">&#8250;</button>
       </div>
     </main>
+
+    <section class="mala-view" id="malaView" aria-label="Naam jap mala">
+      <div class="mala-head">
+        <span class="mala-head-num" id="beadCount">0</span>
+        <span class="mala-head-of">of 108</span>
+      </div>
+
+      <div class="mala-strand" id="malaStrand" role="button" tabindex="0"
+           aria-label="Mala — swipe down, or press Space, to move one bead">
+        <div class="mala-beads" id="malaBeads" aria-hidden="true"></div>
+      </div>
+      <p class="mala-hint">Swipe down to pull the next bead</p>
+
+      <div class="mala-stats">
+        <div class="mala-stat">
+          <span class="mala-stat-num" id="malaCount">0</span>
+          <span class="mala-stat-label">Malas completed</span>
+        </div>
+        <div class="mala-stat">
+          <span class="mala-stat-num" id="malaTotal">0</span>
+          <span class="mala-stat-label">Total names</span>
+        </div>
+      </div>
+
+      <div class="mala-actions">
+        <button class="pill ghost" id="malaUndoBtn" type="button">Undo</button>
+        <button class="pill ghost" id="malaResetBtn" type="button">Reset</button>
+      </div>
+    </section>
 
     <footer class="controls">
       <button class="pill" id="translateBtn">
