@@ -3,47 +3,65 @@
 // Bajrang Baan text & meanings adapted from a widely circulated English rendering with diacritic transliteration.
 
 // Ram Stuti — "Shri Ramchandra Kripalu Bhajman", by Tulsidas
+// `t` = approx start (seconds) of each verse in the Learn-mode chant audio (TEXTS.ramstuti.audio),
+// estimated from the video's auto-transcript — nudge if a verse starts early/late.
 const RAM_STUTI = [
   {
     type: "chaupai",
     n: 1,
-    text: "Shri Ramchandra kripalu bhajmana\nHarana bhava-bhaya darunam\nNav kanja lochan kanja mukha kara\nKanja pada kanjarunam",
+    t: 6.5,
+    text: "Shri Ramachandra Kripalu Bhajman\nHarana Bhavabhaya Daarunam\nNavakanja Lochana Kanja Mukhakara\nKanja Pada Kanjaarunam",
     meaning:
-      "Worship the compassionate Shri Ram, destroyer of the dreadful fear of worldly existence — his eyes, face, hands and feet all like fresh, reddish lotus blooms.",
+      "Oh, my heart! Sing praises of Sri Ram, Who absolves the greatest fears due to the cycle of life and death, and Whose eyes, mouth, hands, and feet are like a newly blooming red lotus.",
   },
   {
     type: "chaupai",
     n: 2,
-    text: "Kandarpa aganit amit chhabi\nNav neel neeraj sundaram\nPatapeet manahu tadit ruchi\nSuchi naumi Janaka sutavaram",
+    t: 21.5,
+    text: "Kandarpa Aganita Amita Chhav Nava\nNeela Neerara Sundaram\nPatapita Maanahum Tadita Ruchi Shuchi\nNavmi Janaka Sutaavaram",
     meaning:
-      "More beautiful than countless Cupids, lovely as a fresh blue lotus, his yellow garment gleaming like lightning — I bow to him, the pure, matchless husband of Janaka's daughter, Sita.",
+      "The shade of His beauty is greater than that of countless Cupids. His body has a beautiful color like a new blue-water cloud. His yellow robes shine like lightning on His cloud-like body, His beauty is gleaming, and He is the consort of the daughter of Janak (Sita).",
   },
   {
     type: "chaupai",
     n: 3,
-    text: "Bhaju deenabandhu dinesh danava\ndaitya-vansh nikandanam\nRaghunanda anandakanda\nKaushal-chanda Dashrath nandanam",
+    t: 36.5,
+    text: "Bhaju Deena Bandhu Dinesh Daanav\nDaityavansha Nikandanam\nRaghunanda Aananda Kanda Kaushala\nChanda Dasharatha Nandanam",
     meaning:
-      "Worship him, friend of the humble, sun among kings, destroyer of demon lineages — joy of the Raghu clan, root of all bliss, moon of Kaushalya, beloved son of Dashrath.",
+      "Sing praises of Sri Ram, Who is the friend of the poor, Who is the Lord of the Sun, Who destroyed the lineage of demons born of Danu and Diti, Who is the dear one of Raghu, Who is like a cloud of happiness, Who is like a moon for Kosala Desa, and Who is the dear one of Dashrath.",
   },
   {
     type: "chaupai",
     n: 4,
-    text: "Sira mukut kundal tilak charu\nUdaru anga vibhushanam\nAjanu bhuja shara chaapadhara\nSangram jita khara-dhushanam",
+    t: 51.5,
+    tEnd: 68, // instrumental + "Shri Ram" interlude follows
+    text: "Sira Mukuta Kundala Tilaka Chaaru\nUdaaru Anga Vibhooshanam\nAajaanu Bhuja Shara Chaapadhara\nSangraama-jita-khara Dooshanam",
     meaning:
-      "Crowned, with earrings and a graceful forehead mark, adorned across his noble form; arms reaching to his knees, bow and arrow in hand — victor over the demons Khara and Dushana in battle.",
+      "Sing praises of Sri Ram, Who has a beautiful crown on His head, Who is adorned with ear-hoops, Who has a beautiful colored mark (tilak) on His forehead, Who is decorated with beautiful ornaments, Who has long arms reaching His knees, Who holds a bow and an arrow, and Who defeated Khar and Dushan in a fierce battle.",
   },
   {
     type: "chaupai",
     n: 5,
-    text: "Iti vadati Tulsidas Shankar\nShesh muni man ranjanam\nMama hriday kanja niwas kuru\nKamadi khala-dala ganjanam",
+    t: 97.5,
+    text: "Iti Vadati Tulsidas Shankar\nShesha Muni Manaranjanam\nMama Hridayakanja Nivaas Kuru\nKaamaadi Khaladal Ganjanam",
     meaning:
-      "So says Tulsidas: delighting the minds of Shiva, the serpent Shesha and the sages — please dwell in the lotus of my heart, O crusher of desire and every hostile force.",
+      "Tulsidas prays that Ram, the one who pleases the mind of Lord Shiv, Shesh (Sheshnag) and the saints, always reside in my lotus-like heart and destroy the evils born of desire, such as lust, anger and greed.",
   },
   {
-    type: "doha",
-    text: "Ram naam mani-deep dharu, jeeh dehri dware\nTulsi bhitar bahira hu, jo chahasi ujiyaar",
+    type: "chaupai",
+    n: 6,
+    t: 112,
+    text: "Manu Jaahin Raacheu Milihi so Baru\nSahaja Sundara Saanvaro\nKaruna Nidhaan Sujaan Seelu\nSanehu Jaanat Raavaro",
     meaning:
-      "Place the jewel-lamp of Ram's name at the threshold of your tongue, says Tulsidas — if you wish for light, both within and without.",
+      "The one to whom your mind has become attached, that naturally beautiful, dark-complexioned groom (Shri Ramchandraji), you will attain. He is the treasure of mercy and all-knowing (Sarvagya).",
+  },
+  {
+    type: "chaupai",
+    n: 7,
+    t: 127.5,
+    text: "Ehi Bhaanti Gauri Asees Suni Siya\nSahita Hiyan Harashi Ali\nTulsi Bhavaanihi Pooji Puni Puni\nMudit Man Mandir Chalee",
+    meaning:
+      "In this way, hearing the blessings of Shri Gauriji, all the friends along with Jankiji were happy in their hearts. Tulsidasji says that after worshipping Bhavani again and again, Sitaji returned to the palace with a happy heart.",
   },
 ];
 
@@ -396,14 +414,18 @@ const CHALISA_END_T = 234; // approx end of chant audio, after the closing doha'
 // Bajrang Baan — text and meanings adapted from a widely circulated English
 // rendering with diacritic transliteration. Regional variants of the wording
 // exist; cross-check against a source you trust before formal recitation.
+// `t` = approx start (seconds) of each stanza in the Learn-mode chant audio (TEXTS.bajrangbaan.audio);
+// optional `tEnd` stops Learn before an instrumental/chant interlude.
 const BAJRANG_BAAN = [
   {
     type: "invocation",
+    t: 0,
     text: "Om Sri Hanumāte Namah",
     meaning: "Om, salutations to Sri Hanuman.",
   },
   {
     type: "doha",
+    t: 5,
     text: "Nishchaya prema pratīti té, binaya kare sanamān\nTéhi ke kāraja sakala shubha, siddha karéñ Hanumān",
     meaning:
       "Those devotees who recite these verses with love and unwavering faith have all their beneficial desires fulfilled by Hanuman.",
@@ -411,6 +433,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 1,
+    t: 27.6,
     text: "Jaya Hanumanta santa hitakāri\nSuni lījai prabhu araja hamārī\nJana ke kāja bilamba na kījai\nĀtura dauri mahā sukha dījai",
     meaning:
       "Glory to Hanuman, the benefactor of saints. Please listen to our prayer. Do not delay in doing the work of your devotees — please rush to do it and give us immense peace.",
@@ -418,6 +441,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 2,
+    t: 37,
     text: "Jaisé kūdi sindu wahi pārā\nSurasā badana paiṭhi vistārā\nĀgé jā-i laṅkinī rokā\nMāréhu lāta ga-ī suralokā",
     meaning:
       "[Come running] just like when you leapt across the ocean, entered and emerged from the expanded mouth of Surasa who tried to obstruct your path, and on landing in Lanka sent the demoness Lankini to the heavenly abode with a single kick when she tried to stop you.",
@@ -425,6 +449,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 3,
+    t: 45.9,
     text: "Jāya Vibhīshaṇa ko sukha dīnhā\nSītā nirakhi parama pada līnhā\nBāga ujāri sindhu mahaṅ borā\nAti ātura Yamakātura torā",
     meaning:
       "In Lanka you gave joy to Vibhishan by meeting him, and attained the supreme position of being loved by Sri Ram through Sita's merciful blessing. Then you laid waste the Ashoka grove and dumped the trees in the ocean, symbolically breaking the knife of Yama, the God of Death.",
@@ -432,6 +457,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 4,
+    t: 54.5,
     text: "Akshaya Kumār ko māri saṅhārā\nLūma lapéti Laṅka ko jārā\nLāha samāna Laṅka jari gaī\nJaya jaya dhuni surapura manha bhaī",
     meaning:
       "You killed Akshay Kumar, Ravana's son, and burnt Lanka with your tail. Lanka burned like molten lac, and the heavens filled with the sound of 'Hail to Hanuman's glory.'",
@@ -439,6 +465,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 5,
+    t: 63.5,
     text: "Aba bilamba kéhi kāraṇa swāmi\nKṛpā karahu ura antarayāmī\nJaya jaya Lakhana prāṇa ké dātā\nĀtura ho-i dukha karahu nipātā",
     meaning:
       "Why are you delaying now, my Lord? You know what resides in the minds of your devotees, so have mercy on me. Glory to you who restored the life of Lakshman — quickly dispel my fears.",
@@ -446,6 +473,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 6,
+    t: 72,
     text: "Jai giridhara jai jai sukha sāgara\nSura samūha samarata bhaṭa nāgara\nOm hanu hanu hanu hanumanta hatīlé\nBairihiñ māru vajra ké kīlé",
     meaning:
       "Hail to you, holder of the mountain! You are an ocean of happiness, wisest among the gods and most skillful. O you of indomitable spirit, strike down the enemies — lust, anger, greed — as if nailed by the strike of a thunderbolt.",
@@ -453,6 +481,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 7,
+    t: 81,
     text: "Gadā vajra lai bairihiñ māro\nMahārāja prabhu dāsa ubāro\nOmkāra huñkāra mahāvīra dhāvau\nVajra gadā hanu vilamba na lāvo",
     meaning:
       "O Lord! Relieve your servant by striking the enemies with your mace, as if it were a thunderbolt. Sounding the roar of Om, rush upon the enemy and crush them with your mace, without delay.",
@@ -460,6 +489,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 8,
+    t: 89.5,
     text: "Om hrīm hrīm hrīm hanumanta kapīsā\nOm huñ huñ huñ hanu ari ura shīshā\nSatya hohu hari shapata pāyaké\nRāmadūta dharu māru dhāyaké",
     meaning:
       "O Hanuman, Lord of the Monkeys, I invoke you with the sacred sound Om hrīm hrīm hrīm and Om huñ huñ huñ. Strike the enemy in the chest and head. I swear by the name of Hari that all I say is true — O messenger of Sri Ram, rush to attack the enemy at once.",
@@ -467,6 +497,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 9,
+    t: 98,
     text: "Jaya jaya jaya hanumanta agādhā\nDukha pāvata jana kéhi aparādhā\nPūjā japa tapa néma achārā\nNahiñ jānata hauñ dāsa tumhārā",
     meaning:
       "Glory to you, O fathomless Hanuman! For which offence is your devotee suffering so much? This servant of yours knows nothing of worship, sacred chanting, penance, or the discipline of ritual and virtue.",
@@ -474,6 +505,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 10,
+    t: 107,
     text: "Bana upavana maga giri gṛha māhīñ\nTumhare bala ham darapata nāhiñ\nPānya parauñ kara jori manāvaūñ\nYahi avasara aba kéhi gohrāvaūñ",
     meaning:
       "Relying on your strength, I fear nothing anywhere — in forest, garden, mountain, road or home. I fall at your feet and entreat you with folded hands. For whom else shall I call at this hour?",
@@ -481,6 +513,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 11,
+    t: 116,
     text: "Jaya Anjanī kumāra balavantā\nShaṅkara suvana bīra hanumantā\nBadana karāla kāla kula ghālaka\nRāma sahāya sadā pratipālaka",
     meaning:
       "Hail Hanuman! All-powerful son of Anjani and brave son of Shiva. Your form is fierce and terrifying, and you are the slayer of Death's own minions. You are always by the side of Sri Ram, and the benefactor of all.",
@@ -488,6 +521,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 12,
+    t: 124,
     text: "Bhūta, preta, pisācha, nisāchara\nAgni baitāla kāla māri mara\nInhéṅ māru tohi shapatha Rāma ki\nRākhu nātha maryāda nāma ki",
     meaning:
       "Slay all evil spirits — ghosts, spirits, hobgoblins, demons, fire, vampires, calamity and epidemic. Destroy them all in the name of Lord Sri Ram, upholding the sanctity of his holy name.",
@@ -495,6 +529,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 13,
+    t: 132.8,
     text: "Janakasutā Hari dāsa kahāvo\nTākī shapata bilamba na lāvo\nJaya jaya jaya dhuni hota akāshā\nSumirata hota dusaha dukha nāshā",
     meaning:
       "You are the servant of Sri Ram and Mother Sita — I implore you in their names, make no delay. The sky reverberates with the sound of your glory, and its mere remembrance dispels all sorrow.",
@@ -502,6 +537,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 14,
+    t: 142,
     text: "Charaṇa sharaṇa kara jori manāvauñ\nYahi avasara aba kehi goharāvauñ\nUṭhu uṭhu chalu tohi Rāma dohā-ī\nPāñya parauń kara jori manā-ī",
     meaning:
       "I have come to take refuge at your feet. I plead with you — who else shall I call for help at this urgent hour? Get up, get up, come along! I urge you with folded hands to act.",
@@ -509,6 +545,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 15,
+    t: 150.5,
     text: "Om chãṁ chãṁ chãṁ chãṁ chapala chalantā\nOm hanu hanu hanu hanu hanumantā\nOm hañ hañ hāṅka déta kapi chañchal\nOm sam sam sahami parāné khaladal",
     meaning:
       "I implore you, O nimble-footed Hanuman, with the call of Om chãṁ chãṁ chãṁ chãṁ and Om hanu hanu hanu hanu — strike swiftly, like lightning. Whenever the swift Hanuman roars, the crowd of evildoers flees in terror.",
@@ -516,6 +553,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 16,
+    t: 158.8,
     text: "Apané jana ko turata ubāro\nSumirata hoya ānanda hamāro\nYahi bajarañga bāṇa jéhi māré\nTāhi kaho phir kauna ubāré",
     meaning:
       "Save this devotee of yours at once — remembering you brings me immense joy. Who can save one who is struck by this Bajarang Baan, the arrow as strong as a thunderbolt?",
@@ -523,6 +561,7 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 17,
+    t: 168,
     text: "Pāṭa karai bajarañga bāna ki\nHanumata rakshā karaiń prāna ki\nYaha bajarañga baṇa jo jāpai\nTéhi té bhūta préta saba kañpai",
     meaning:
       "Those who recite these verses of Bajarang Baan are protected for life by Hanuman. Even ghosts and evil spirits tremble in fear of those who chant this Bajarang Baan.",
@@ -530,12 +569,15 @@ const BAJRANG_BAAN = [
   {
     type: "chaupai",
     n: 18,
+    t: 177,
+    tEnd: 183, // a long "Jai Hanuman" chant follows before the closing doha
     text: "Dhūpa déy aru japai hameshā\nTāké tana nahiñ rahai kaleshā",
     meaning:
       "Those who wave incense before you and chant your holy name always remain free from bodily affliction of every kind.",
   },
   {
     type: "doha",
+    t: 209,
     text: "Prema pratītihi kapi bhajai, sadā dharai ura dhyān\nTéhi ke kāraja sakala shubha, siddha karaĩ Hanumān",
     meaning:
       "Those who chant Hanuman's holy name with faith, devotion and love, always holding him in their hearts, are sure to have all their desires fulfilled by Hanuman.",
@@ -548,17 +590,38 @@ const TEXTS = {
     title: "Ram Stuti",
     subtitle: "Shri Ramchandra Kripalu Bhajman",
     stanzas: RAM_STUTI,
+    audio: {
+      videoId: "leVoi6kkp3o",
+      endT: 146, // verse 7 ends; the sortha that follows in the audio is not shown
+      title: "Shree Ram Stuti",
+      channel: "Nitya Bhakti",
+      credit: "Sonika Sharma Agarwal",
+    },
   },
   chalisa: {
     id: "chalisa",
     title: "Hanuman Chalisa",
     subtitle: "Forty verses in praise of Shri Hanuman",
     stanzas: CHALISA,
+    audio: {
+      videoId: "BLlTFapgvOo",
+      endT: CHALISA_END_T,
+      title: "Shree Hanuman Chalisa (Lo-fi, slowed & reverb)",
+      channel: "Vianet LoFi Bhajans",
+      credit: "Rasraj Ji Maharaj",
+    },
   },
   bajrangbaan: {
     id: "bajrangbaan",
     title: "Bajrang Baan",
     subtitle: "The arrow-prayer of Bajrang Bali",
     stanzas: BAJRANG_BAAN,
+    audio: {
+      videoId: "wuYgr4gcNLw",
+      endT: 218, // closing doha ends; jaikaras follow
+      title: "Bajrang Baan (Lofi Version)",
+      channel: "Rasraj Ji Maharaj Official",
+      credit: "Rasraj Ji Maharaj",
+    },
   },
 };

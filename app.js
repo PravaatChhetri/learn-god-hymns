@@ -8,7 +8,6 @@
   const STORAGE_SPEED = "hanuman-app:speed:v1";
   const STORAGE_MALA = "hanuman-app:mala:v1";
   const STORAGE_VIEW = "hanuman-app:view:v1";
-  const CHALISA_VIDEO_ID = "BLlTFapgvOo";
   const BEADS_PER_MALA = 108;
 
   const TEXT_IDS = Object.keys(TEXTS);
@@ -132,7 +131,14 @@
     mala: loadMala(), // beads: 0..108 on the current mala, malas: completed rounds
     malaMode: loadMalaMode(),
   };
-  state.index = state.pos[state.textId] || 0;
+  if (!TEXTS[state.textId]) state.textId = "ramstuti";
+
+  // a saved position can outlive a stanza that was later removed from the text
+  function savedIndex(id) {
+    const i = state.pos[id] || 0;
+    return i >= 0 && i < TEXTS[id].stanzas.length ? i : 0;
+  }
+  state.index = savedIndex(state.textId);
 
   function currentText() {
     return TEXTS[state.textId];
@@ -147,12 +153,8 @@
   function buildCard(stanza) {
     const card = document.createElement("div");
     card.className = "stanza-card";
-    const tag =
-      stanza.type === "doha"
-        ? "Doha"
-        : stanza.type === "invocation"
-          ? "Invocation"
-          : `Verse ${stanza.n}`;
+    const TYPE_TAGS = { doha: "Doha", sortha: "Sortha", invocation: "Invocation" };
+    const tag = TYPE_TAGS[stanza.type] || `Verse ${stanza.n}`;
     const lines = stanza.text
       .split("\n")
       .map((l) => `<span class="stanza-line">${escapeHtml(l)}</span>`)
@@ -311,7 +313,7 @@
     if (id === state.textId) return;
     if (learning) stopLearn();
     state.textId = id;
-    state.index = state.pos[id] || 0;
+    state.index = savedIndex(id);
     localStorage.setItem(STORAGE_TEXT, id);
     els.cardWrap.innerHTML = "";
     activeCardEl = buildCard(currentStanza());
@@ -500,10 +502,12 @@
     if (!els.hint.classList.contains("hide")) els.hint.classList.add("hide");
   }
 
-  // ---------------- YouTube chant audio (Chalisa Learn mode) ----------------
+  // ---------------- YouTube chant audio (Learn mode for texts with `audio`) ----------------
   let ytPlayer = null,
     ytReady = false,
-    ytPlaying = false;
+    ytPlaying = false,
+    ytVideoId = TEXTS.chalisa.audio.videoId, // video currently loaded in the player
+    ytOnPlaying = null; // runs once the requested video actually starts playing
   const ytTimers = [];
 
   window.onYouTubeIframeAPIReady = function () {
@@ -511,11 +515,18 @@
       ytPlayer = new YT.Player("ytPlayerMount", {
         height: "1",
         width: "1",
-        videoId: CHALISA_VIDEO_ID,
+        videoId: ytVideoId,
         playerVars: { controls: 0, disablekb: 1, playsinline: 1 },
         events: {
           onReady: () => {
             ytReady = true;
+          },
+          onStateChange: (e) => {
+            if (e.data === YT.PlayerState.PLAYING && ytOnPlaying) {
+              const run = ytOnPlaying;
+              ytOnPlaying = null;
+              run();
+            }
           },
         },
       });
@@ -531,6 +542,7 @@
 
   function stopYtLearn() {
     ytPlaying = false;
+    ytOnPlaying = null;
     clearYtTimers();
     if (ytPlayer) {
       try {
@@ -540,10 +552,11 @@
   }
 
   function startLearnYouTube(stanza, cardEl) {
-    const stanzas = currentText().stanzas;
+    const { stanzas, audio } = currentText();
     const idx = stanzas.indexOf(stanza);
-    const endT =
-      idx >= 0 && idx < stanzas.length - 1 ? stanzas[idx + 1].t : CHALISA_END_T;
+    const nextT =
+      idx >= 0 && idx < stanzas.length - 1 ? stanzas[idx + 1].t : audio.endT;
+    const endT = stanza.tEnd ?? nextT; // tEnd skips an interlude before the next stanza
     const startT = stanza.t;
     const duration = Math.max(endT - startT, 1);
 
@@ -553,38 +566,52 @@
     const myToken = ++learnToken;
     const lineEls = Array.from(cardEl.querySelectorAll(".stanza-line"));
 
+    // start highlighting only once audio is really playing (switching videos takes a moment to buffer)
+    ytOnPlaying = () => {
+      if (myToken !== learnToken) return;
+      try {
+        ytPlayer.setPlaybackRate(learnRate);
+      } catch (e) {}
+      scheduleLines();
+    };
     try {
-      ytPlayer.seekTo(startT, true);
-      ytPlayer.setPlaybackRate(learnRate);
-      ytPlayer.playVideo();
+      if (ytVideoId === audio.videoId) {
+        ytPlayer.seekTo(startT, true);
+        ytPlayer.playVideo();
+      } else {
+        ytVideoId = audio.videoId;
+        ytPlayer.loadVideoById({ videoId: audio.videoId, startSeconds: startT });
+      }
     } catch (e) {
       stopLearn();
       showToast("Couldn't start chant audio — check your connection");
       return;
     }
 
-    lineEls.forEach((el, i) => {
-      const offset = (duration * i) / lineEls.length;
-      const delay = (offset / learnRate) * 1000;
-      ytTimers.push(
-        setTimeout(() => {
-          if (myToken !== learnToken) return;
-          lineEls.forEach((el2) => el2.classList.remove("active"));
-          el.classList.add("active");
-          el.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }, delay),
-      );
-    });
+    function scheduleLines() {
+      lineEls.forEach((el, i) => {
+        const offset = (duration * i) / lineEls.length;
+        const delay = (offset / learnRate) * 1000;
+        ytTimers.push(
+          setTimeout(() => {
+            if (myToken !== learnToken) return;
+            lineEls.forEach((el2) => el2.classList.remove("active"));
+            el.classList.add("active");
+            el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+          }, delay),
+        );
+      });
 
-    ytTimers.push(
-      setTimeout(
-        () => {
-          if (myToken !== learnToken) return;
-          stopLearn();
-        },
-        (duration / learnRate) * 1000,
-      ),
-    );
+      ytTimers.push(
+        setTimeout(
+          () => {
+            if (myToken !== learnToken) return;
+            stopLearn();
+          },
+          (duration / learnRate) * 1000,
+        ),
+      );
+    }
   }
 
   // ---------------- learn mode (browser text-to-speech + a soft generated drone) ----------------
@@ -669,7 +696,7 @@
   }
 
   function startLearn(stanza, cardEl) {
-    if (state.textId === "chalisa" && ytReady && typeof stanza.t === "number") {
+    if (currentText().audio && ytReady && typeof stanza.t === "number") {
       startLearnYouTube(stanza, cardEl);
       return;
     }
@@ -718,6 +745,32 @@
   function toggleLearn(stanza, cardEl) {
     if (learning) stopLearn();
     else startLearn(stanza, cardEl);
+  }
+
+  // ---------------- chant audio credits (About overlay) ----------------
+  function renderSongList() {
+    const list = document.getElementById("songList");
+    Object.values(TEXTS)
+      .filter((t) => t.audio)
+      .forEach((t) => {
+        const { videoId, title, channel, credit } = t.audio;
+        const url = `https://www.youtube.com/watch?v=${videoId}`;
+        const item = document.createElement("a");
+        item.className = "song";
+        item.href = url;
+        item.target = "_blank";
+        item.rel = "noopener";
+        item.innerHTML = `
+          <img class="song-thumb" src="https://i.ytimg.com/vi/${videoId}/mqdefault.jpg" alt="" loading="lazy" />
+          <span class="song-info">
+            <span class="song-used">${escapeHtml(t.title)} · Learn</span>
+            <span class="song-title">${escapeHtml(title)}</span>
+            <span class="song-by">${escapeHtml(credit)} · ${escapeHtml(channel)}</span>
+          </span>
+          <span class="song-go" aria-hidden="true">▶</span>
+        `;
+        list.appendChild(item);
+      });
   }
 
   // ---------------- intro / about overlay ----------------
@@ -850,6 +903,7 @@
   });
 
   // ---------------- init ----------------
+  renderSongList();
   renderMala();
   renderInitial();
   updateCountBadge();
