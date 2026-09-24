@@ -1,8 +1,7 @@
 # Hanuman Chalisa, Bajrang Baan & Ram Stuti — English
 
-A single-page web app for reading, learning and reciting three devotional Hindu texts in English transliteration with plain-English meaning: **Ram Stuti**, **Hanuman Chalisa**, and **Bajrang Baan**. Built as a static site (no build step, no backend) — open `index.html` or deploy the folder as-is.
+A single-page web app for reading, learning and reciting three devotional Hindu texts in English transliteration with plain-English meaning: **Ram Stuti**, **Hanuman Chalisa**, and **Bajrang Baan**. Built with Next.js and deployed on Vercel, with one API route for the collective count.
 
-Live at: https://hanuman-chalisa-app-jerq.netlify.app/
 
 ## Features
 
@@ -12,27 +11,53 @@ Live at: https://hanuman-chalisa-app-jerq.netlify.app/
   - On the **Chalisa** tab, Learn plays a real chant recording (via an embedded, hidden YouTube player) seeked to that verse's position, and highlights each line in time with the audio.
   - On the **Ram Stuti** and **Bajrang Baan** tabs (and as a fallback if the YouTube player can't load), Learn uses the browser's built-in text-to-speech (`speechSynthesis`) to read each line aloud, with a soft generated ambient drone underneath.
   - A speed selector (0.5x–1.5x) controls playback rate for both the YouTube audio and the text-to-speech voice.
-- **Reading counter (japa count)** — completing a full pass through a text (reaching the end and wrapping back to the start, or tapping "Mark complete") increments a private counter for that text, shown via a badge and a details sheet. Counts are stored only in the browser (`localStorage`) — nothing is sent to a server.
+- **Reading counter (japa count)** — completing a full pass through a text (reaching the end and wrapping back to the start, or tapping "Mark complete") increments a private counter for that text, shown via a badge and a details sheet. Personal counts are stored in the browser (`localStorage`). Each completion also adds an anonymous +1 to the collective total (see below).
+- **Home: the collective offering.** The default landing view shows the total naam jap, Chalisa, Ram Stuti and Bajrang Baan completed by everyone. 108 beads light up as the current collective mala fills. Tap the ॐ to return to it. Below the count, the home page also holds the site introduction, the three prayers, how to practise, chant-audio credits and the about note.
 - **Per-text reading position** — your current stanza in each text is remembered across visits.
-- **Intro / about overlay** — a welcome screen with an FAQ and background on the project, shown once per browser (or reopened anytime via the info button).
 - **Theming** — each text has its own accent color/background gradient, switched via a `data-theme` attribute on `<body>`.
 - **SEO / GEO metadata** — Open Graph, Twitter Card, and JSON-LD structured data (`WebSite`, `CreativeWork` x3, `FAQPage`) for search engines and AI answer engines.
 
-## File structure
+## Pages
+
+| URL | Page |
+| --- | --- |
+| `/` | Home: collective count, the three prayers, how to practise, chant voices, about |
+| `/ram-stuti` | Ram Stuti reader |
+| `/hanuman-chalisa` | Hanuman Chalisa reader |
+| `/bajrang-baan` | Bajrang Baan reader |
+| `/mala` | Naam jap mala |
+
+Each page is prerendered with its own title, description, canonical URL and JSON-LD. The theme (colours, background) comes from the URL, so it is correct in the server HTML.
+
+## Project structure
 
 ```
-index.html    Markup: intro overlay, app shell, stanza card container, footer controls, count sheet
-style.css     All styling, including per-text theme variables and the Learn/speed controls
-data.js       Text content: RAM_STUTI, CHALISA, BAJRANG_BAAN arrays + the TEXTS lookup object
-app.js        All application logic (single IIFE, no dependencies/framework)
-robots.txt    Search engine crawl rules
-sitemap.xml   Sitemap for search engines
-bg.jpg        Background artwork
+app/
+  layout.tsx          Site metadata, fonts (next/font), <AppProvider> + <Shell>
+  page.tsx            Home page (server-rendered sections + JSON-LD)
+  [slug]/page.tsx     The three text pages (static params, per-page metadata)
+  mala/page.tsx       Mala page
+  api/tally/route.ts  Collective count API (Upstash Redis)
+  globals.css, robots.ts, sitemap.ts, icon.svg
+components/
+  AppProvider.tsx     Shared state across pages: counts, positions, mala, Learn, toast
+  Shell.tsx           Themed background, top navigation, toast, count sheet
+  Reader.tsx          Stanza cards, swipe/keys, Translation / Learn / speed / Mark complete
+  MalaView.tsx        Naam jap mala strand
+  CountSheet.tsx      Personal reading counts
+  home/CollectiveOffering.tsx  Live totals + 108-bead ring
+  home/Lotus.tsx      Ornamental divider
+hooks/useLearn.ts     Learn mode: hidden YouTube chant player, text-to-speech fallback, drone
+lib/
+  texts.ts            Text content (typed)
+  routes.ts           Page slugs, Devanagari names, per-page SEO copy, theme-for-URL
+  tally.ts            Browser queue + store for the collective count
+  tally-fields.ts     Fields and per-request limits shared by client and API
+  mala.ts, storage.ts, site.ts
+public/               bg.jpg, bead artwork
 ```
 
-There is no build tool, package manager, or bundler — `data.js` and `app.js` are loaded directly as plain `<script>` tags, plus the YouTube IFrame API script (`https://www.youtube.com/iframe_api`).
-
-## Data model (`data.js`)
+## Data model (`lib/texts.ts`)
 
 Each text is an array of stanza objects:
 
@@ -50,9 +75,9 @@ Each text is an array of stanza objects:
 
 ### Chalisa video timestamps
 
-`CHALISA` entries carry a `t` field: the start time (in seconds) of that stanza in the reference recording (*Rasraj Ji Maharaj – Lo-fi Version Shree Hanuman Chalisa*, video ID `BLlTFapgvOo`). A stanza's *end* time is simply the next stanza's `t` (the last stanza uses `CHALISA_END_T`, defined in `data.js`). Within a stanza, individual lines are highlighted at evenly-spaced offsets across that window, since only per-verse (not per-line) timing data is available — so line-level sync is an approximation, while verse-level sync is exact.
+`CHALISA` entries carry a `t` field: the start time (in seconds) of that stanza in the reference recording (*Rasraj Ji Maharaj – Lo-fi Version Shree Hanuman Chalisa*, video ID `BLlTFapgvOo`). A stanza's *end* time is simply the next stanza's `t` (the last stanza uses `CHALISA_END_T`, defined in `lib/texts.ts`). Within a stanza, individual lines are highlighted at evenly-spaced offsets across that window, since only per-verse (not per-line) timing data is available — so line-level sync is an approximation, while verse-level sync is exact.
 
-## How Learn mode works (`app.js`)
+## How Learn mode works (`hooks/useLearn.ts`)
 
 - `startLearn(stanza, cardEl)` is the entry point (wired to both the footer Learn button and each card's own Learn button).
   - If the active tab is Chalisa, the YouTube player has finished initializing, and the stanza has a `t` timestamp → `startLearnYouTube()` runs.
@@ -70,21 +95,32 @@ The YouTube player itself is mounted invisibly (`#ytPlayerMount`, 1×1px, `opaci
 | --- | --- |
 | `hanuman-app:counts:v1` | Completed-reading count per text |
 | `hanuman-app:pos:v1` | Last-viewed stanza index per text |
-| `hanuman-app:lasttext:v1` | Last-viewed tab |
-| `hanuman-app:seenintro:v1` | Whether the intro overlay has been dismissed |
 | `hanuman-app:speed:v1` | Chosen Learn playback rate |
+| `hanuman-app:mala:v1` | Mala bead / mala count |
+| `hanuman-app:pending:v1` | Collective increments not yet sent |
+| `hanuman-app:global:v1` | Last collective totals seen, shown while offline |
 
-Nothing is sent to a server; there is no backend, analytics, or tracking beyond what's declared in the meta tags for search engines.
+## Collective count (`app/api/tally/route.ts`)
+
+`GET /api/tally` returns `{ naamjap, chalisa, ramstuti, bajrangbaan }`. `POST /api/tally` takes a JSON body of increments. Totals live in one Upstash Redis hash (`tally:totals`), connected through the Vercel Marketplace (env vars `KV_REST_API_URL` / `KV_REST_API_TOKEN`). Each POST applies its `HINCRBY`s and reads the totals back in one atomic transaction, so concurrent increments are never lost.
+
+The client queues increments in `localStorage` and sends them in batches: 4 s after the last change, via `sendBeacon` when the page is hidden, and on the next visit if the device was offline. A single request can add at most 1080 names and 5 of each path. Only numbers are stored, with no IP or user identifier. There is no auth, so a determined person could still inflate the totals by scripting requests.
+
+Without the Redis env vars, `next dev` counts in memory (reset on restart). Run `vercel env pull .env.local` to develop against the real database.
 
 ## Running locally
 
-No build step required. Serve the folder with any static file server, e.g.:
-
 ```bash
-python3 -m http.server 8000
+npm install
+npm run dev        # http://localhost:3000
+npm run build      # production build + type check
 ```
 
-then open `http://localhost:8000/`.
+## Deploying
+
+Hosted on Vercel (project `learn-god-hymns`, connected to the GitHub repo, so pushes to `main` deploy to production). Functions and the Redis database both run in Mumbai (`bom1`, see `vercel.json`). Manual deploy: `vercel deploy --prod`.
+
+Canonical URLs use `NEXT_PUBLIC_SITE_URL` when set (e.g. once a custom domain is added), otherwise the project's Vercel production domain.
 
 ## Browser support notes
 
