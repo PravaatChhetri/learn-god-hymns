@@ -40,7 +40,7 @@ function MalaStrand({
   onReset,
 }: {
   mala: MalaState;
-  today: { malas: number; naamjap: number };
+  today: { malas: number };
   completedAt: number; // bumps each time a mala is completed, to play the glow
   onCount: () => void;
   onUndo: () => void;
@@ -152,8 +152,7 @@ function MalaStrand({
         </div>
       </div>
       <p className="mala-today">
-        Today: {today.malas.toLocaleString()} mala{today.malas === 1 ? "" : "s"} ·{" "}
-        {today.naamjap.toLocaleString()} name{today.naamjap === 1 ? "" : "s"}
+        Today: {today.malas.toLocaleString()} mala{today.malas === 1 ? "" : "s"}
       </p>
 
       <div className="mala-actions">

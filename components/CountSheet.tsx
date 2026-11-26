@@ -26,7 +26,6 @@ function daySummary(r: DayRecord) {
   const paths = PATH_ORDER.reduce((sum, id) => sum + r[id], 0);
   const parts = [];
   if (r.malas) parts.push(plural(r.malas, "mala"));
-  if (r.naamjap) parts.push(plural(r.naamjap, "name"));
   if (paths) parts.push(plural(paths, "path"));
   return parts.join(" · ");
 }
@@ -59,10 +58,6 @@ export default function CountSheet({ open, onClose }: { open: boolean; onClose: 
             <span className="num">{today.malas.toLocaleString()}</span>
             <span className="name">Malas</span>
           </div>
-          <div className="count-tile">
-            <span className="num">{today.naamjap.toLocaleString()}</span>
-            <span className="name">Names</span>
-          </div>
           {PATH_ORDER.map((id) => (
             <div className="count-tile" key={id}>
               <span className="num">{today[id].toLocaleString()}</span>
@@ -71,11 +66,11 @@ export default function CountSheet({ open, onClose }: { open: boolean; onClose: 
           ))}
         </div>
 
-        {history.some((r) => r.date !== today.date) && (
+        {history.some((r) => r.date !== today.date && daySummary(r)) && (
           <>
             <h3 className="sheet-heading">Last {HISTORY_DAYS} days</h3>
             <ul className="count-days">
-              {history.map((r) => (
+              {history.filter((r) => daySummary(r)).map((r) => (
                 <li key={r.date}>
                   <span className="name">{dayLabel(r.date, today.date)}</span>
                   <span className="sum">{daySummary(r)}</span>
