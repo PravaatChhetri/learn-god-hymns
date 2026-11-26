@@ -33,12 +33,14 @@ const MALA_PULL = 36; // px of downward drag that counts as one bead
 
 function MalaStrand({
   mala,
+  today,
   completedAt,
   onCount,
   onUndo,
   onReset,
 }: {
   mala: MalaState;
+  today: { malas: number; naamjap: number };
   completedAt: number; // bumps each time a mala is completed, to play the glow
   onCount: () => void;
   onUndo: () => void;
@@ -149,6 +151,10 @@ function MalaStrand({
           <span className="mala-stat-label">Total names</span>
         </div>
       </div>
+      <p className="mala-today">
+        Today: {today.malas.toLocaleString()} mala{today.malas === 1 ? "" : "s"} ·{" "}
+        {today.naamjap.toLocaleString()} name{today.naamjap === 1 ? "" : "s"}
+      </p>
 
       <div className="mala-actions">
         <button className="pill ghost" type="button" onClick={onUndo} disabled={mala.beads === 0}>
@@ -164,10 +170,11 @@ function MalaStrand({
 
 /** The mala page, wired to the shared app state. */
 export default function MalaView() {
-  const { mala, malaCompletedAt, countBead, undoBead, resetMala } = useApp();
+  const { mala, today, malaCompletedAt, countBead, undoBead, resetMala } = useApp();
   return (
     <MalaStrand
       mala={mala}
+      today={today}
       completedAt={malaCompletedAt}
       onCount={countBead}
       onUndo={undoBead}

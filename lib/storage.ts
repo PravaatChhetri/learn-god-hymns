@@ -6,9 +6,19 @@ export const KEYS = {
   pos: "hanuman-app:pos:v1",
   speed: "hanuman-app:speed:v1",
   mala: "hanuman-app:mala:v1",
+  // tally outbox and cached totals: now in IndexedDB (lib/tally.ts); these are the
+  // legacy keys it migrates from, and its fallback when IndexedDB is unavailable
   pending: "hanuman-app:pending:v1",
   global: "hanuman-app:global:v1",
 } as const;
+
+export function remove(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    /* storage unavailable */
+  }
+}
 
 export function readString(key: string): string | null {
   try {

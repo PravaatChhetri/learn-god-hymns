@@ -5,10 +5,12 @@
 // navigating between pages.
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLearn, type Learn } from "@/hooks/useLearn";
+import { addToDay, emptyDay, getDay, type DailyField, type DayRecord } from "@/lib/daily";
 import { BEADS_PER_MALA, cleanMala, type MalaState } from "@/lib/mala";
 import { KEYS, readJSON, readString, write } from "@/lib/storage";
 import { queueTally, startTally } from "@/lib/tally";
 import { TEXTS, TEXT_IDS, type TextId } from "@/lib/texts";
+import { registerServiceWorker } from "@/lib/sw-register";
 
 type CountMap = Record<TextId, number>;
 
@@ -17,6 +19,7 @@ interface AppState {
   counts: CountMap;
   pos: CountMap;
   mala: MalaState;
+  today: DayRecord; // what has been offered today (local calendar day), from the IndexedDB log
   malaCompletedAt: number;
   speed: number;
   showTranslation: boolean;
@@ -58,6 +61,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const [counts, setCounts] = useState<CountMap>(emptyCounts);
   const [pos, setPos] = useState<CountMap>(emptyCounts);
   const [mala, setMala] = useState<MalaState>({ beads: 0, malas: 0 });
+  const [today, setToday] = useState<DayRecord>(() => emptyDay(""));
   const [malaCompletedAt, setMalaCompletedAt] = useState(0);
   const [speed, setSpeedState] = useState(0.75);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -81,7 +85,22 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     if (Number.isFinite(savedSpeed) && savedSpeed > 0) setSpeedState(savedSpeed);
     setHydrated(true);
     startTally();
+    registerServiceWorker();
+
+    // load today's log, and reload it on return to the tab (the day may have turned over)
+    const loadToday = () => getDay().then(setToday);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadToday();
+    };
+    loadToday();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
+
+  function logDay(inc: Partial<Record<DailyField, number>>) {
+    // writes commit in the order they were made, so the last record to arrive is the newest
+    addToDay(inc).then(setToday);
+  }
 
   function completeReading(id: TextId) {
     const n = (counts[id] || 0) + 1;
@@ -89,6 +108,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     setCounts(next);
     write(KEYS.counts, next);
     queueTally(id, 1);
+    logDay({ [id]: 1 });
     showToast(`🙏 ${TEXTS[id].title} complete — ${n} time${n === 1 ? "" : "s"}`);
   }
 
@@ -122,6 +142,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     const malas = mala.malas + (done ? 1 : 0);
     saveMala({ beads, malas });
     queueTally("naamjap", 1);
+    logDay({ naamjap: 1, malas: done ? 1 : 0 });
     if (done) {
       buzz([60, 60, 160]);
       showToast(`📿 Mala complete — ${malas} mala${malas === 1 ? "" : "s"}`);
@@ -138,6 +159,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     const beads = mala.beads === 1 && malas > 0 ? BEADS_PER_MALA : mala.beads - 1;
     saveMala({ beads, malas });
     queueTally("naamjap", -1);
+    logDay({ naamjap: -1, malas: mala.beads === BEADS_PER_MALA ? -1 : 0 });
   }
 
   function resetMala() {
@@ -150,6 +172,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     counts,
     pos,
     mala,
+    today,
     malaCompletedAt,
     speed,
     showTranslation,

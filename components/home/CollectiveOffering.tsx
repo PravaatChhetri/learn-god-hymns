@@ -127,6 +127,8 @@ export default function CollectiveOffering() {
   const live = tally.lastOk > 0 && !tally.failed;
   let status = "Gathering the count…";
   if (live) status = `Live · updated ${relativeTime(tally.lastOk, Math.max(now, tally.lastOk))}`;
+  else if (tally.failed && TALLY_FIELDS.some((f) => tally.pending[f] > 0))
+    status = "Offline · your counts are saved and will be offered when you reconnect";
   else if (tally.failed && known) status = "Offline · showing the last count we saw";
   else if (tally.failed) status = "Couldn't reach the collective count";
 
